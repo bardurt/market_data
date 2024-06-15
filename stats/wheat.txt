@@ -1,5 +1,5 @@
 Total: 5971
 Close Above Previous: 2880
-Down Below or at Previous: 3090
+Close Below or at Previous: 3090
 Bullish: 2675
 Bearish: 3295

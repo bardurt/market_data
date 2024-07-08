@@ -1,0 +1,5 @@
+Total: 5991
+Close Above Previous: 2908
+Close Below or at Previous: 3082
+Bullish: 2915
+Bearish: 3075

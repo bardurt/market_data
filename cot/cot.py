@@ -1,17 +1,32 @@
 import os
 import requests
+import datetime
+
+# Define paths
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # Root directory of script
+LOG_FILE = os.path.join(BASE_DIR, "log.txt")  # Log file in root
+DATA_DIR = os.path.join(BASE_DIR, "data")  # Data directory
+
+def log_message(message):
+    """ Logs a message to log.txt """
+    with open(LOG_FILE, "a") as log:
+        log.write(f"{datetime.datetime.now()} - {message}\n")
+
+def log_error(error):
+    """ Logs an error message to log.txt """
+    with open(LOG_FILE, "a") as log:
+        log.write(f"{datetime.datetime.now()} - ERROR: {error}\n")
 
 class DiskWriter:
-    DIRECTORY_NAME =  DIRECTORY_NAME = os.path.join(os.path.dirname(__file__), "data")
-
     def __init__(self, name):
         try:
-            os.makedirs(self.DIRECTORY_NAME, exist_ok=True)
-            self.file_path = os.path.join(self.DIRECTORY_NAME, name)
+            os.makedirs(DATA_DIR, exist_ok=True)  # Ensure /data directory exists
+            self.file_path = os.path.join(DATA_DIR, name)  # File inside /data
             self.writer = open(self.file_path, "a", encoding="utf-8")
             self.reader = open(self.file_path, "r", encoding="utf-8")
+            log_message(f"Opened file {self.file_path} for writing.")
         except Exception as e:
-            print(e)
+            log_error(f"Error initializing DiskWriter: {e}")
 
     def write_line(self, line, check_duplicate=False):
         if not check_duplicate:
@@ -25,20 +40,19 @@ class DiskWriter:
 
     def _write_line_if_unique(self, line):
         try:
-            self.reader.seek(0)  # Reset reader position
+            self.reader.seek(0)
             if any(existing_line.strip() == line for existing_line in self.reader):
                 return
             self._write_line(line)
-            print("Writing line to file " + line)
+            log_message(f"Writing line to file: {line}")
         except Exception as e:
-            print(e)
+            log_error(f"Error writing line: {e}")
 
     def close(self):
         if self.writer:
             self.writer.close()
         if self.reader:
             self.reader.close()
-
 
 class CftcCotDataBroker:
     ITEMS = [
@@ -69,6 +83,7 @@ class CftcCotDataBroker:
 
     def download_data(self, url):
         try:
+            log_message(f"Starting data download. Running from {os.getcwd()}")
             response = requests.get(url)
             response.raise_for_status()
             lines = response.text.splitlines()
@@ -82,9 +97,13 @@ class CftcCotDataBroker:
                     file_writer = DiskWriter(self.FILES[index])
                     file_writer.write_line(line_item, True)
                     file_writer.close()
+            
+            log_message("Data download completed successfully.")
         except Exception as e:
-            print(e)
+            log_error(f"Error downloading data: {e}")
 
 if __name__ == "__main__":
+    log_message("Script started.")
     broker = CftcCotDataBroker()
     broker.download_data("https://www.cftc.gov/dea/newcot/deafut.txt")
+    log_message("Script finished.")

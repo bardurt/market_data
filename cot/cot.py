@@ -102,8 +102,11 @@ class CftcCotDataBroker:
         except Exception as e:
             log_error(f"Error downloading data: {e}")
 
+
 if __name__ == "__main__":
+    log_message("===========================")
     log_message("Script started.")
     broker = CftcCotDataBroker()
     broker.download_data("https://www.cftc.gov/dea/newcot/deafut.txt")
     log_message("Script finished.")
+    log_message("===========================")

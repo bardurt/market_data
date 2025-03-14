@@ -42,6 +42,7 @@ class DiskWriter:
         try:
             self.reader.seek(0)
             if any(existing_line.strip() == line for existing_line in self.reader):
+                log_message("Value is not unique")
                 return
             self._write_line(line)
             log_message(f"Writing line to file: {line}")
